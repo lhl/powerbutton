@@ -1,0 +1,7 @@
+#!/bin/bash
+
+curl -N http://localhost/hold
+echo
+sleep 1
+curl http://localhost/click
+echo
