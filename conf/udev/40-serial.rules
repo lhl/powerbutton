@@ -1,0 +1,2 @@
+KERNEL=="ttyACM?",  MODE="0660", GROUP="wheel"
+# we could specify OWNER="lhl" if we wanted
