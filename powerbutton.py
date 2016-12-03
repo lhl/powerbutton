@@ -23,8 +23,6 @@ class bbbSwitch:
       # print("CLICK")
       GPIO.output("P9_41", GPIO.HIGH)
 
-
-
   def click(self, duration=0.3):
     GPIO.output("P9_41", GPIO.HIGH)
     time.sleep(duration)
@@ -38,9 +36,39 @@ class numatoSwitch:
   def __init__(self):
     import serial
     self.serial = serial.Serial('/dev/ttyACM0', 19200, timeout=1)
+    self.button_pressed = False
+
+    # Set 2 high
+    cmd = 'gpio set 2\n\r'
+    cmd = bytes(cmd.encode('ascii'))
+    self.serial.write(cmd)
 
   def button_listener(self):
-    pass
+    cmd = 'gpio read 3\n\r'
+    cmd = bytes(cmd.encode('ascii'))
+    self.serial.write(cmd)
+    out = self.serial.read(25)
+    out = out.decode('ascii')
+
+    # if not self.button_pressed and out[-4] == '1':
+    if out[-4] == '1' and not self.button_pressed:
+      cmd = 'relay on 0 \n\r'
+      cmd = bytes(cmd.encode('ascii'))
+      self.serial.write(cmd)
+
+      print('XXXXXXXXXXXXXXXXXXXXXXX')
+      self.button_pressed = True
+
+    # if self.button_pressed and out[-4] == '0':
+    if out[-4] == '0' and self.button_pressed:
+      cmd = 'relay off 0 \n\r'
+      cmd = bytes(cmd.encode('ascii'))
+      self.serial.write(cmd)
+
+      print('.')
+      self.button_pressed = False
+
+    # print()
 
   def click(self, duration=0.3):
     on = 'relay on 0 \n\r'
