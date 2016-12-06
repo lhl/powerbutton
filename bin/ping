@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 
-from   concurrent.futures import ProcessPoolExecutor, wait
 import datetime
+from   multiprocessing import Process, Queue
 import socket
 import sys
 import time
@@ -25,18 +25,20 @@ Now we can use concurrent.futures to easily do a thread for DNS
 socket.setdefaulttimeout(0.5)
 
 
-def dns_lookup(host):
-  socket.gethostbyname(host)
-  return 'dns done'
+def dns_lookup(host, q):
+  try:
+    socket.gethostbyname(host)
+    q.put('OK')
+  except:
+    pass
 
 
 if socket.gethostname() == 'powerbutton':
   target = '192.168.7.109'
-  target = 'oregon.local'
+  # target = 'oregon.local'
 else:
   target = 'devbox.local'
 
-pool = ProcessPoolExecutor(1)
 while 1:
   last_start = time.time()
 
@@ -44,35 +46,34 @@ while 1:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # DNS lookup
-    future = pool.submit(dns_lookup, (target))
-    print(time.time())
-    # result = wait([future], 0.5)
-    # print(len(result.not_done))
-    try:
-      print(future.result(0.5))
-    except:
-      print('not done')
-      future.cancel()
-      # continue
-    print(time.time())
-    sys.exit()
+    q = Queue()
+    p = Process(target=dns_lookup, args=(target, q,))
+    p.start()
+    time.sleep(0.4)
+
+    if q.empty():
+      p.terminate()
+      print(str(datetime.datetime.fromtimestamp(time.time())) + ': ! nodns')
 
 
-    s.connect((target, 22))
-    last_up = time.time()
-    print(str(datetime.datetime.fromtimestamp(last_up)) + ': OK')
-    if not is_up:
-      downtime = last_up - last_down
-      print('Back up after {.2f} s down').format(downtime)
-      is_up = True
-    s.close()
+    # Only if we can DNS connect
+    else:
+      s.connect((target, 22))
+      last_up = time.time()
+      print(str(datetime.datetime.fromtimestamp(last_up)) + ': OK')
+      if not is_up:
+        downtime = last_up - last_down
+        print('Back up after {.2f} s down').format(downtime)
+        is_up = True
+      s.close()
+
   except socket.error as e:
     last_down = time.time()
     print(str(datetime.datetime.fromtimestamp(last_down)) + ': .')
     if is_up:
       is_up = False
 
-  sleep = (last_start+1) - time.time() - 0.002
+  sleep = (last_start+1) - time.time() - 0.001
   if sleep > 0:
     time.sleep(sleep)
   else:
