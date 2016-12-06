@@ -34,8 +34,7 @@ def dns_lookup(host, q):
 
 
 if socket.gethostname() == 'powerbutton':
-  target = '192.168.7.109'
-  # target = 'oregon.local'
+  target = 'oregon.local'
 else:
   target = 'devbox.local'
 
@@ -63,7 +62,7 @@ while 1:
       print(str(datetime.datetime.fromtimestamp(last_up)) + ': OK')
       if not is_up:
         downtime = last_up - last_down
-        print('Back up after {.2f} s down').format(downtime)
+        print('Back up after {:.2f} s down').format(downtime)
         is_up = True
       s.close()
 
