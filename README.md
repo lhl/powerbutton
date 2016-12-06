@@ -10,6 +10,8 @@ Other bits:
 * cron has a sample of the rtunnel.sh script we run on cron for remote SSH access
 * /etc/network/interfaces includes wifi setup (not included in repo)
 
+Note, on a BBB (ubuntu image) you will need to install `libnss-mdns` and make sure you append `mdns` to the end of the `hosts` stanza in `/etc/nsswitch.conf` to resolve mdns
+
 # License
    Copyright 2016 Leonard Lin
 
