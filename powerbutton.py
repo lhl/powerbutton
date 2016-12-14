@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 
+import Adafruit_BBIO.GPIO as GPIO
 import os
 import platform
+import serial
 import sys
 import time
 import tornado.ioloop
@@ -11,7 +13,6 @@ import tornado.web
 
 class bbbSwitch:
   def __init__(self):
-    import Adafruit_BBIO.GPIO as GPIO
     GPIO.setup("P9_41", GPIO.OUT)
     GPIO.setup("P8_7", GPIO.IN)
 
@@ -34,7 +35,6 @@ class bbbSwitch:
 
 class numatoSwitch:
   def __init__(self):
-    import serial
     self.serial = serial.Serial('/dev/ttyACM0', 19200, timeout=1)
     self.button_pressed = False
 
