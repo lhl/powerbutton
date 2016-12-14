@@ -23,6 +23,8 @@ if sys.stdout.isatty():
   console.setFormatter(formatter)
   logging.getLogger('').addHandler(console)
 
+logging.info('START watchdog')
+
 # Socket Timeout
 socket.setdefaulttimeout(0.5)
 
