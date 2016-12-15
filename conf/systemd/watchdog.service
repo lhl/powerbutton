@@ -1,0 +1,11 @@
+[Unit]
+Description=miner watchdog
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/home/lhl/powerbutton/watchdog.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
