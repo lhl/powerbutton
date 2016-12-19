@@ -2,9 +2,11 @@
 
 
 import datetime
+import json
 import logging
 from   multiprocessing import Process, Queue
 import os
+import requests
 import socket
 import subprocess
 import sys
@@ -15,11 +17,11 @@ HOME = os.path.dirname(os.path.realpath(__file__))
 
 # Logging
 FORMAT = '%(asctime)-15s : %(levelname)s : %(message)s'
-logging.basicConfig(filename='{}/log/watchdog.log'.format(HOME),level=logging.DEBUG,format=FORMAT)
+logging.basicConfig(filename='{}/log/watchdog.log'.format(HOME),level=logging.INFO,format=FORMAT)
 
 if sys.stdout.isatty():
   console = logging.StreamHandler()
-  console.setLevel(logging.DEBUG)
+  console.setLevel(logging.INFO)
   formatter = logging.Formatter(FORMAT)
   console.setFormatter(formatter)
   logging.getLogger('').addHandler(console)
@@ -76,8 +78,28 @@ while 1:
     if is_up:
       is_up = False
       down_since = time.time()
-      
 
+  # Check if it's hashing
+  if is_up:
+    if target == 'devbox.local':
+      try:
+        r = requests.get('http://devbox.local:3333/')
+        text = r.text.split('<br>')
+        text = text[0].split('{')
+        j = json.loads('{' + text[1])
+        (hashrate, shares, rejected) = j['result'][2].split(';')
+        if int(hashrate) <= 50000:
+          logging.info('LOW HASHRATE: {}'.format(hashrate))
+          is_up = False
+          if not down_since:
+            down_since = time.time()
+      except:
+        logging.info('DOWN: Claymore miner unreachable')
+        is_up = False
+        down_since = time.time()
+
+      
+  # If down, then let's potentially reboot this thing...
   if not is_up:
     if down_since > 0 and time.time() - down_since > 60:
       # OK, let's reboot this sucker
