@@ -88,7 +88,7 @@ while 1:
         text = text[0].split('{')
         j = json.loads('{' + text[1])
         (hashrate, shares, rejected) = j['result'][2].split(';')
-        if int(hashrate) <= 50000:
+        if int(hashrate) <= 45000:
           logging.info('LOW HASHRATE: {}'.format(hashrate))
           is_up = False
           if not down_since:
