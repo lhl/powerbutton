@@ -71,7 +71,7 @@ while 1:
         down_since = time.time()
     else:
       if not is_up:
-        logging.info('BACK UP after {:.2f} s'.format(down_since))
+        logging.info('BACK UP after {:.2f} s'.format(time.time()-down_since))
         is_up = True
         down_since = 0.0
   except socket.error as e:
