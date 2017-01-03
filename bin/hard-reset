@@ -2,6 +2,6 @@
 
 curl -N http://localhost/hold
 echo
-sleep 1
+sleep 3
 curl http://localhost/click
 echo
