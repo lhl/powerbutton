@@ -34,7 +34,7 @@ socket.setdefaulttimeout(0.5)
 # If up or down
 is_up = True
 
-# Timestampe since Down
+# Timestamp since Down
 down_since = 0.0
 
 
@@ -70,7 +70,7 @@ while 1:
         is_up = False
         down_since = time.time()
     else:
-      if not is_up:
+      if not is_up and time.time() - down_since > 2:
         logging.info('BACK UP after {:.2f} s'.format(time.time()-down_since))
         is_up = True
         down_since = 0.0
