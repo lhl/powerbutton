@@ -102,11 +102,22 @@ while 1:
   # If down, then let's potentially reboot this thing...
   if not is_up:
     if down_since > 0 and time.time() - down_since > 60:
-      # OK, let's reboot this sucker
-      logging.info('DOWN {:.2f} s, REBOOTING'.format(down_since))
-      subprocess.call(['{}/bin/hard-reset'.format(HOME)])
-      # Reset Down - as long as it doesn't take more than 80s to come up we should be fine
-      down_since = time.time()
+      # Before we reboot, lets just make sure we're online...
+      response = os.system('ping -c 1 google.com')
+
+      if response == 0:
+        # OK, let's reboot this sucker
+        logging.info('DOWN {:.2f} s, REBOOTING'.format(down_since))
+        subprocess.call(['{}/bin/hard-reset'.format(HOME)])
+
+        # Let's give this a rest just in case
+        time.sleep(60)
+
+        # Reset Down
+        down_since = time.time()
+      else:
+        logging.info('INTERNET DOWN {:.2f} s, WAITING'.format(down_since))
+        time.sleep(60)
 
 
   # Try to sleep to 1s
